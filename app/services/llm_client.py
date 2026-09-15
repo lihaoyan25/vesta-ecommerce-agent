@@ -104,3 +104,46 @@ class LLMClient:
 
 # 模块级单例
 llm_client = LLMClient()
+
+# 复用的请求超时配置
+_TIMEOUT = httpx.Timeout(connect=30, read=180, write=30, pool=30)
+
+
+def chat_completion_sync(
+    messages: List[Dict[str, Any]],
+    *,
+    temperature: float = 0.0,
+    thinking: bool = False,
+) -> str:
+    """非流式对话（内部任务专用，如 Text2SQL 生成）。
+
+    与流式接口相互独立：思考模式由参数显式指定，不读全局开关。
+    """
+    payload = {
+        "model": llm_client.model,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": settings.DEEPSEEK_MAX_TOKENS,
+        "stream": False,
+        "thinking": {"type": "enabled" if thinking else "disabled"},
+    }
+    headers = {
+        "Authorization": f"Bearer {llm_client.api_key}",
+        "Content-Type": "application/json",
+    }
+    try:
+        with httpx.Client(timeout=_TIMEOUT) as client:
+            resp = client.post(
+                f"{llm_client.base_url}/chat/completions", json=payload, headers=headers
+            )
+    except httpx.HTTPError as e:
+        raise LLMError(f"LLM 连接失败: {e}") from e
+
+    if resp.status_code != 200:
+        raise LLMError(f"LLM 接口返回 {resp.status_code}: {resp.text[:200]}")
+
+    data = resp.json()
+    try:
+        return data["choices"][0]["message"]["content"] or ""
+    except (KeyError, IndexError, TypeError) as e:
+        raise LLMError(f"LLM 响应格式异常: {e}") from e
