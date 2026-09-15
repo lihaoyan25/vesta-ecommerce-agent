@@ -44,6 +44,11 @@ class Settings(BaseSettings):
     # 思考模式开关：显式写入请求参数 thinking.type（V4 系列服务端默认 enabled，必须显式覆盖）
     DEEPSEEK_THINKING: bool = False
 
+    # Docker 部署专用（由 docker-compose.yml 读取，后端运行时不使用；声明以保持 .env 严格校验通过）
+    MYSQL_ROOT_PASSWORD: str = ""
+    FRONTEND_PORT: int = 80
+    UVICORN_WORKERS: int = 2
+
     @property
     def LLM_ENABLED(self) -> bool:
         """智能客服是否可用"""

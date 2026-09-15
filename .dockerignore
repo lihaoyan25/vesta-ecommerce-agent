@@ -1,0 +1,15 @@
+# 后端镜像构建上下文排除项
+.venv/
+venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+.git/
+.gitignore
+.env
+.env.example
+# 前端与文档不进入后端镜像
+frontend/
+docs/
+# 静态资源运行时以数据卷挂载，不打进镜像
+static/

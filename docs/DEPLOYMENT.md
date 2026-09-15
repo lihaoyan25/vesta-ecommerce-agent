@@ -169,3 +169,76 @@ python scripts/init_db.py
 - 数据库账号仅授予所需库的最小权限
 - 建议启用 HTTPS (可配合 Let's Encrypt 证书)
 - 定期备份数据库, 尤其是 `users`, `products`, `cart_items` 表
+
+## 11. Docker 部署（推荐）
+
+三个容器一键编排：`mysql` + `backend` + `frontend`（Nginx 托管前端并反代 `/api`、`/static`），宿主机无需安装 Python/Node/MySQL。
+
+### 11.1 前置条件
+
+- 服务器已安装 Docker 与 Compose 插件（验证：`docker -v` 与 `docker compose version`）
+- **云控制台安全组放行 80 端口（TCP）**——打不开页面九成是这一步漏了
+- MySQL 首次启动自动建库建用户：`.env` 中 `DATABASE_USER` **不能是 root**，`DATABASE_NAME` 不要含特殊字符
+
+### 11.2 配置准备
+
+代码上传服务器后编辑 `.env`：
+
+```ini
+DATABASE_HOST=mysql          # 容器网络内用服务名访问，不是 localhost
+DATABASE_USER=shop_user      # 不能是 root
+DATABASE_NAME=your_database_name
+# ===== Docker 专用（compose 读取）=====
+MYSQL_ROOT_PASSWORD=<强随机密码>
+FRONTEND_PORT=80             # 对外端口，80 被占用可改 8080
+UVICORN_WORKERS=2            # 2G 内存小服务器建议 1
+```
+
+`MYSQL_ROOT_PASSWORD`、`FRONTEND_PORT`、`UVICORN_WORKERS` 三个变量在 `.env.example` 中有模板。
+
+### 11.3 构建与启动
+
+```bash
+docker compose up -d --build
+```
+
+- MySQL 数据持久化在命名卷 `mysql-data`，删除容器不丢数据
+- 商品图片目录以 `./static` 挂载到后端容器，宿主机直接管理
+
+### 11.4 初始化管理员
+
+```bash
+docker compose exec backend python scripts/init_db.py
+```
+
+### 11.5 访问验证
+
+| 项目 | 地址 |
+| --- | --- |
+| 前端 | `http://服务器IP` |
+| Swagger 文档 | `http://服务器IP/api/v1/docs`（经 Nginx 反代） |
+| 容器状态 | `docker compose ps` |
+| 后端日志 | `docker compose logs -f backend` |
+
+### 11.6 常用运维
+
+```bash
+# 更新代码后重新构建启动
+git pull && docker compose up -d --build
+
+# 备份数据库
+docker compose exec mysql sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" $MYSQL_DATABASE' > backup.sql
+
+# 恢复备份
+docker compose exec -T mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" $MYSQL_DATABASE' < backup.sql
+```
+
+### 11.7 Docker 环境常见问题
+
+| 问题 | 排查方向 |
+| --- | --- |
+| 页面打不开 | 云安全组未放行 80；`FRONTEND_PORT` 是否被占用 |
+| 后端起不来连不上库 | `docker compose logs backend`；确认 `.env` 中 `DATABASE_HOST=mysql` |
+| 首页能开但接口 502 | 后端未就绪或崩溃，看 backend 日志与健康检查 |
+| 客服 SSE 不流式 | 确认流量直达 frontend 容器，中间无额外 CDN/代理开启缓冲 |
+| 数据想重置 | `docker compose down -v`（**会删除全部数据卷**，慎用） |
