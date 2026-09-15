@@ -2,6 +2,8 @@
 
 一个前后端分离的**智能线上商城**, 实现智能客服AI Agent, 用户注册登录, 商品浏览/搜索/管理, 购物车, 余额充值, 下单结算等核心电商闭环能力
 
+> 📦 快速部署: **[部署文档 (Docker 一键上云)](docs/DEPLOYMENT.md)** ｜ 🛠 开发文档: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) ｜ 🔌 接口文档: [docs/API.md](docs/API.md)
+
 - 后端: FastAPI + SQLAlchemy 2.0 + MySQL, JWT 鉴权, 分层架构 (`routes → services → dao → models/schemas`)
 - 前端: Vue 3 `<script setup>` + Vite + Pinia + Vue Router + Axios + Tailwind CSS
 
@@ -117,6 +119,9 @@ copy .env.example .env      # Windows
 # 初始化管理员账号 (可选)
 python scripts/init_db.py
 
+# 初始化示例商品 (可选, 含商品图, 幂等可重复执行)
+python scripts/seed_products.py
+
 # 启动后端 (默认 http://localhost:8000)
 uvicorn app.main:app --reload
 ```
@@ -140,6 +145,14 @@ python scripts/init_db.py
 ```
 
 默认账号 `admin / admin123`, 首次登录后请立即修改密码
+
+### 4. 初始化示例商品
+
+```bash
+python scripts/seed_products.py
+```
+
+内置 10 件示例商品与商品图, 按名称去重, 可重复执行不会产生重复数据
 
 ## 访问地址
 

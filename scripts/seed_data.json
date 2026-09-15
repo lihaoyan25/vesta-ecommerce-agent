@@ -1,0 +1,82 @@
+[
+  {
+    "name": "iPhone 17 Pro",
+    "description": "创新设计，打造巅峰性能和超长续航\n\n包装内容\niPhone 17 Pro\nUSB-C 充电线\n\n",
+    "price": "1999.00",
+    "stock": 999988,
+    "is_active": true,
+    "image": "iphone_17_pro_display.jpg"
+  },
+  {
+    "name": "MacBook Air",
+    "description": "MacBook Air 一身轻盈，厚度不到 1.2 厘米，处处带着都轻松\n\n强势动力来自 M5，这款芯片配备 10 核中央处理器，以及最高达 10 核、内置神经网络加速器的图形处理器\n\n电池续航最长达 18 小时，没带电源适配器也不用焦虑",
+    "price": "2999.00",
+    "stock": 999999,
+    "is_active": true,
+    "image": "macbook_air_display.jpg"
+  },
+  {
+    "name": "iPad Pro 11",
+    "description": "Apple M5 芯片带来新一代速度体验和强大的设备端 AI 表现，从个人事务、专业工作到创意项目，大事小事都能助你轻松搞定\n\n超精视网膜 XDR 显示屏，具备 ProMotion 自适应刷新率技术、P3 广色域和原彩显示技术；可选配纳米纹理玻璃面板\n\n兼容 Apple Pencil Pro、Apple Pencil (USB-C)、适用于 iPad Pro 的妙控键盘，以及智能双⁠面⁠夹",
+    "price": "3999.00",
+    "stock": 999997,
+    "is_active": true,
+    "image": "ipad_pro_11_display.jpg"
+  },
+  {
+    "name": "Ferrari 296 GTS",
+    "description": "驾驶乐趣的典范之作\n\n法拉利296 GTS是跃马旗下采用中后置发动机布局的双座Berlinetta敞篷跑车的革新力作\n\n新车搭载全新120° V6发动机与一台可外接充电式混合动力电动机，这套动力系统首次应用于法拉利296 GTB，综合输出功率高达830 cv\n\n这款跑车重新定义驾驶乐趣，无论极限驾驶或是日常驾控均可带来纯粹的驾趣激情",
+    "price": "990000.00",
+    "stock": 99999,
+    "is_active": true,
+    "image": "ferrari_296_gts_display.png"
+  },
+  {
+    "name": "AITO M9",
+    "description": "宽敞空间，灵活随行，为驾驭而生，游⁠走于城市街巷与山间弯道，演绎干练气质\n\n贯穿成型闪银饰条，搭配一体式天际星环灯，光带流畅延展，夜间点亮，如星河倾泻，万象尽披光华\n\n百万像素照投彩一体大灯，照得远，投得清，色彩真实鲜活\n\n首创可变璇光镜头，配合侧向彩色激光投影，以地面为画布，导航指引、视频流转、氛围光影悉数铺陈于脚下\n\n光影交织，别有妙趣",
+    "price": "190000.00",
+    "stock": 99989,
+    "is_active": true,
+    "image": "aito_m9_display.jpg"
+  },
+  {
+    "name": "Unitree Go2",
+    "description": "具生智能-新物种\n\n充分开放挖掘硬件潜力，复杂地形运动速度更快，转向响应更为迅捷。可在碎石、斜坡等复杂地形实现稳定灵活穿行\n\nGo2搭载Unitree自研4D激光雷达L2，360°×96°半球形超广角感知能力，拥有超低盲区，最小探测距离低至0.05m，可以帮助Go2实现全地形感知\n\n大模型强势赋能，缔造全新物种，帮助Go2更好的理解世界和做出决策",
+    "price": "2999.00",
+    "stock": 99999,
+    "is_active": true,
+    "image": "go2_display.png"
+  },
+  {
+    "name": "Unitree H2",
+    "description": "卓然形态 优雅新生\n\n180全尺寸人形设计，以优雅流线重塑工业美学\n\n运控算法 赋形以灵\n\n31自由度实时响应，关节扭矩最大可达360N.m，精准复现复杂高动态动作，通过OTA实现算法持续迭代进化\n\n具身模型 全球共创\n\n搭载最高2070 TOPS算力芯片，可用于部署各类具身智能大模型，赋能多元工作场景，推动人形机器人持续探索边界",
+    "price": "19000.00",
+    "stock": 99999,
+    "is_active": true,
+    "image": "h2_display.png"
+  },
+  {
+    "name": "Krug Grande Cuvée",
+    "description": "The most generous expression of Champagne.",
+    "price": "99999.00",
+    "stock": 99993,
+    "is_active": true,
+    "image": "krug_display.png"
+  },
+  {
+    "name": "Cloud Summit Villa",
+    "description": "居于山巅之上，俯瞰万里云海，藏纳天地盛景。云境宸墅，择城市稀贵山顶高地而筑，远离尘嚣纷扰\n\n推窗即揽层峦叠嶂，云雾晨昏流转，将山林风光尽数私藏\n\n建筑遵循低密奢居理念，精工打磨每一处空间，阔绰观景露台、通透落地窗，引山色风光入室\n\n于此，山为院墙，云作私景，在自然秘境中，构筑一方属于塔尖圈层的隐世居所，开启山巅之上的尊崇慢生活",
+    "price": "1599900000.00",
+    "stock": 99999,
+    "is_active": true,
+    "image": "house1_display.jpg"
+  },
+  {
+    "name": "SpaceX StarShip V3",
+    "description": "星舰 V3，把宇宙，变为目的地\n\n不止飞向深空，更是人类通往多星球的通行座驾\n\n引擎轰鸣之处，便是人类新边界的起点\n\n可往复，越星海；凡所仰望，皆可抵达",
+    "price": "188888888.00",
+    "stock": 99999,
+    "is_active": true,
+    "image": "starship_v3_display.jpg"
+  }
+]

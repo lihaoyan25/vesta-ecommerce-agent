@@ -4,6 +4,9 @@
 
 本项目为前后端分离架构, 推荐生产部署方案: 
 
+- **云服务器首选: Docker Compose 一键部署**, 见 [第 11 章 全流程](#11-云服务器-docker-部署全流程推荐)
+- 传统手动部署 (宿主机 Nginx + venv + uvicorn) 见第 4~8 章
+
 - **后端**: FastAPI 应用由 `uvicorn` 运行, 通过 Nginx 反向代理对外提供服务
 - **前端**: Vite 构建出静态文件, 由 Nginx 直接托管并代理 `/api`, `/static` 请求到后端
 - **数据库**: MySQL
@@ -143,6 +146,12 @@ python scripts/init_db.py
 # 默认 admin / admin123, 登录后请立即修改密码
 ```
 
+如需内置示例商品(10 件含商品图, 幂等可重复执行):
+
+```bash
+python scripts/seed_products.py
+```
+
 ## 8. 部署验证
 
 1. 健康检查: `curl http://127.0.0.1:8000/health` (后端直接访问, 返回 `{"status":"healthy"}`)
@@ -170,75 +179,125 @@ python scripts/init_db.py
 - 建议启用 HTTPS (可配合 Let's Encrypt 证书)
 - 定期备份数据库, 尤其是 `users`, `products`, `cart_items` 表
 
-## 11. Docker 部署（推荐）
+## 11. 云服务器 Docker 部署全流程（推荐）
 
-三个容器一键编排：`mysql` + `backend` + `frontend`（Nginx 托管前端并反代 `/api`、`/static`），宿主机无需安装 Python/Node/MySQL。
+三个容器一键编排：`mysql` + `backend` + `frontend`（Nginx 托管前端并反代 `/api`、`/static`），宿主机无需安装 Python/Node/MySQL。以下是从一台全新云服务器到网站可访问的完整过程。
 
-### 11.1 前置条件
+### 11.1 连接服务器并安装 Docker
 
-- 服务器已安装 Docker 与 Compose 插件（验证：`docker -v` 与 `docker compose version`）
-- **云控制台安全组放行 80 端口（TCP）**——打不开页面九成是这一步漏了
-- MySQL 首次启动自动建库建用户：`.env` 中 `DATABASE_USER` **不能是 root**，`DATABASE_NAME` 不要含特殊字符
+```bash
+# SSH 登录云服务器（以 root 为例，建议使用普通用户 + sudo）
+ssh root@服务器IP
 
-### 11.2 配置准备
+# 安装 Docker（官方脚本，适用于 Ubuntu/Debian/CentOS）
+curl -fsSL https://get.docker.com | sh
+systemctl enable --now docker
 
-代码上传服务器后编辑 `.env`：
-
-```ini
-DATABASE_HOST=mysql          # 容器网络内用服务名访问，不是 localhost
-DATABASE_USER=shop_user      # 不能是 root
-DATABASE_NAME=your_database_name
-# ===== Docker 专用（compose 读取）=====
-MYSQL_ROOT_PASSWORD=<强随机密码>
-FRONTEND_PORT=80             # 对外端口，80 被占用可改 8080
-UVICORN_WORKERS=2            # 2G 内存小服务器建议 1
+# 验证
+docker -v
+docker compose version
 ```
 
-`MYSQL_ROOT_PASSWORD`、`FRONTEND_PORT`、`UVICORN_WORKERS` 三个变量在 `.env.example` 中有模板。
+> 服务器配置建议：2 核 2G 起步（2G 内存请把 `.env` 中 `UVICORN_WORKERS` 设为 1）。国内服务器若拉取镜像慢，自行配置 Docker 镜像加速器。
 
-### 11.3 构建与启动
+### 11.2 获取代码
+
+```bash
+# 方式一：git clone（推荐）
+cd /opt
+git clone https://github.com/<你的用户名>/<仓库名>.git vesta-ecommerce
+cd vesta-ecommerce
+
+# 方式二：本地打包上传（在本地执行后传到服务器同目录）
+# scp -r 项目目录 root@服务器IP:/opt/vesta-ecommerce
+```
+
+### 11.3 配置 `.env`
+
+```bash
+cp .env.example .env
+vi .env
+```
+
+必须核对/修改的项：
+
+```ini
+# ===== 数据库（Docker 环境固定写法）=====
+DATABASE_HOST=mysql          # 容器网络内用服务名访问，不是 localhost
+DATABASE_USER=shop_user      # 不能是 root（compose 首次启动自动建库建用户）
+DATABASE_PASSWORD=<强密码>
+DATABASE_NAME=shop_cart_sys_v2_0
+
+# ===== 应用 =====
+DEBUG=False
+SECRET_KEY=<随机长字符串>     # python -c "import secrets;print(secrets.token_hex(32))"
+DEEPSEEK_API_KEY=<你的Key>    # 不填则智能客服停用，主站不受影响
+
+# ===== Docker 专用 =====
+MYSQL_ROOT_PASSWORD=<强随机密码>
+FRONTEND_PORT=80             # 对外端口，80 被占用可改 8080
+UVICORN_WORKERS=2            # 2G 内存建议 1
+```
+
+### 11.4 云控制台放行端口
+
+在云厂商控制台的**安全组 / 防火墙**中放行：`80/TCP`（前端入口）。页面打不开九成是这一步漏了。SSH 的 22 端口一般默认已放行。
+
+### 11.5 构建与启动
 
 ```bash
 docker compose up -d --build
+docker compose ps            # 三个容器应为 running / healthy
 ```
 
-- MySQL 数据持久化在命名卷 `mysql-data`，删除容器不丢数据
+- MySQL 首次启动自动建库建用户，数据持久化在命名卷 `mysql-data`
 - 商品图片目录以 `./static` 挂载到后端容器，宿主机直接管理
 
-### 11.4 初始化管理员
+### 11.6 初始化管理员与示例商品
 
 ```bash
 docker compose exec backend python scripts/init_db.py
+# 默认 admin / admin123, 登录后请立即修改密码
+# 内置 10 件示例商品与商品图, 幂等可重复执行
+docker compose exec backend python scripts/seed_products.py
 ```
 
-### 11.5 访问验证
+### 11.7 访问验证
 
 | 项目 | 地址 |
 | --- | --- |
 | 前端 | `http://服务器IP` |
 | Swagger 文档 | `http://服务器IP/api/v1/docs`（经 Nginx 反代） |
-| 容器状态 | `docker compose ps` |
-| 后端日志 | `docker compose logs -f backend` |
+| 登录验证 | admin 登录 → 商品浏览 → 加购 → 结算 全流程 |
 
-### 11.6 常用运维
+至此部署完成。可选进阶：把域名 A 记录解析到服务器 IP，并用 Certbot（`docker run --rm -p 80:80 certbot/certbot ...`）或宿主机 Nginx 加一层 HTTPS。
 
-```bash
-# 更新代码后重新构建启动
-git pull && docker compose up -d --build
+### 11.8 常用运维指令速查
 
-# 备份数据库
-docker compose exec mysql sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" $MYSQL_DATABASE' > backup.sql
+| 场景 | 命令 |
+| --- | --- |
+| 查看容器状态 | `docker compose ps` |
+| 跟踪后端日志 | `docker compose logs -f backend` |
+| 查看全部容器日志 | `docker compose logs -f` |
+| 重启某个服务 | `docker compose restart backend` |
+| 停止 / 启动全部 | `docker compose stop` / `docker compose start` |
+| **更新代码后重新部署** | `git pull && docker compose up -d --build` |
+| 备份数据库 | `docker compose exec mysql sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" $MYSQL_DATABASE' > backup.sql` |
+| 恢复数据库 | `docker compose exec -T mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" $MYSQL_DATABASE' < backup.sql` |
+| 进入后端容器调试 | `docker compose exec backend sh` |
+| 进入 MySQL 命令行 | `docker compose exec mysql mysql -u<用户名> -p <库名>` |
+| 重新执行种子脚本 | `docker compose exec backend python scripts/seed_products.py` |
+| 查看资源占用 | `docker stats` |
+| 清理悬空镜像 | `docker image prune -f` |
+| **危险：彻底重置（含数据）** | `docker compose down -v`（删除全部数据卷，慎用） |
 
-# 恢复备份
-docker compose exec -T mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" $MYSQL_DATABASE' < backup.sql
-```
-
-### 11.7 Docker 环境常见问题
+### 11.9 Docker 环境常见问题
 
 | 问题 | 排查方向 |
 | --- | --- |
-| 页面打不开 | 云安全组未放行 80；`FRONTEND_PORT` 是否被占用 |
+| 页面打不开 | 云安全组未放行 80；`FRONTEND_PORT` 是否被占用（`ss -tlnp \| grep 80`） |
 | 后端起不来连不上库 | `docker compose logs backend`；确认 `.env` 中 `DATABASE_HOST=mysql` |
 | 首页能开但接口 502 | 后端未就绪或崩溃，看 backend 日志与健康检查 |
 | 客服 SSE 不流式 | 确认流量直达 frontend 容器，中间无额外 CDN/代理开启缓冲 |
-| 数据想重置 | `docker compose down -v`（**会删除全部数据卷**，慎用） |
+| 拉取镜像超时 | 配置 Docker 镜像加速器后重试 |
+| 磁盘占满 | `docker system df` 查看，`docker system prune -f` 清理 |
