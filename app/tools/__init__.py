@@ -4,4 +4,4 @@ from app.tools.registry import register_tool, get_tool, get_openai_tools, execut
 __all__ = ["register_tool", "get_tool", "get_openai_tools", "execute_tool", "dump_tool_result"]
 
 # 导入工具模块以完成注册
-from app.tools import order_tools, product_tools, cart_tools  # noqa: E402,F401
+from app.tools import order_tools, product_tools, cart_tools, time_tools  # noqa: E402,F401

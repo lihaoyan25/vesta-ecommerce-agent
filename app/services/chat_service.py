@@ -26,7 +26,7 @@ from app.services.cart_service import CartService
 # 送入 LLM 的历史消息条数上限(滑动窗口记忆)
 HISTORY_LIMIT = 20
 # 单次提问的工具调用轮数上限(防死循环)
-MAX_TOOL_ROUNDS = 5
+MAX_TOOL_ROUNDS = 7
 
 # 系统提示词外置文件(工具清单手写在提示词内, 便于随时调试, 改文件即生效)
 SYSTEM_PROMPT_FILE = Path(__file__).resolve().parent.parent / "prompts" / "system_prompt.md"
