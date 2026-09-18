@@ -153,7 +153,7 @@ class UserService:
 
         # 统一模糊提示, 避免暴露账号是否存在/是否绑定了手机号
         if not user or user.phone != phone:
-            raise HTTPException(status_code=400, detail="账号、手机号不匹配或未绑定手机号")
+            raise HTTPException(status_code=400, detail="账号, 手机号不匹配或未绑定手机号")
 
         if user.status != 1:
             raise HTTPException(status_code=403, detail="账号已被封禁或注销")

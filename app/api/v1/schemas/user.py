@@ -27,7 +27,7 @@ class UserBase(BaseModel):
         if not v[0].isalpha():
             raise ValueError("用户名必须以字母开头")
         if not all(c.isalnum() or c == "_" for c in v):
-            raise ValueError("用户名只能包含字母、数字、下划线")
+            raise ValueError("用户名只能包含字母, 数字, 下划线")
         return v
 
     @field_validator("phone")

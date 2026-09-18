@@ -7,7 +7,7 @@ from app.models.product import Product
 
 class CartDAO:
     def get_by_user(self, db: Session, user_id: int) -> List[CartItem]:
-        """获取用户的所有购物车项, 联查商品表, 带出商品名称、图片"""
+        """获取用户的所有购物车项, 联查商品表, 带出商品名称, 图片"""
         # join关联商品表, 这样CartItem对象会携带product子对象
         return db.query(CartItem)\
             .join(Product, CartItem.product_id == Product.product_id)\

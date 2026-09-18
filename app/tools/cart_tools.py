@@ -5,7 +5,7 @@ from app.services.cart_service import CartService
 
 @register_tool(
     name="query_my_cart",
-    description="查询当前用户的购物车(商品、数量、小计、合计)",
+    description="查询当前用户的购物车(商品, 数量, 小计, 合计)",
     display="正在查询购物车",
     parameters={"type": "object", "properties": {}},
 )

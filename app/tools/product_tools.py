@@ -5,7 +5,7 @@ from app.tools.sql_query import run_product_query
 
 @register_tool(
     name="search_products",
-    description="商品数据统一查询(内部自动生成 SQL): 支持按名称关键词、价格区间、库存、上架时间等任意条件组合筛选、排序、统计, 也可用商品 ID 精确查询商品详情",
+    description="商品数据统一查询(内部自动生成 SQL): 支持按名称关键词, 价格区间, 库存, 上架时间等任意条件组合筛选, 排序, 统计, 也可用商品 ID 精确查询商品详情",
     display="正在查询商品",
     parameters={
         "type": "object",

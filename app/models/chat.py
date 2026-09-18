@@ -48,7 +48,7 @@ class ChatMessage(Base):
     # 消息内容
     content: Mapped[str] = mapped_column(Text, nullable=False, comment="消息内容")
 
-    # 卡片上下文快照(JSON 字符串: {type, id, text}，用户发送商品/订单卡片时记录)
+    # 卡片上下文快照(JSON 字符串: {type, id, text}, 用户发送商品/订单卡片时记录)
     context: Mapped[str | None] = mapped_column(Text, nullable=True, comment="卡片上下文快照 JSON")
 
     # 时间戳

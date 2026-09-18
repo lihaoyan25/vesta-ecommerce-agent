@@ -8,7 +8,7 @@ _WEEKDAY_TEXT = ["星期一", "星期二", "星期三", "星期四", "星期五"
 
 @register_tool(
     name="get_current_time",
-    description="查询服务器当前系统时间(含星期), 用户询问现在几点、今天几号、星期几等时间问题时调用",
+    description="查询服务器当前系统时间(含星期), 用户询问现在几点, 今天几号, 星期几等时间问题时调用",
     display="正在查询系统时间",
     parameters={"type": "object", "properties": {}},
 )

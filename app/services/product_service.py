@@ -78,7 +78,7 @@ class ProductService:
         return product
 
     def delete_product(self, product_id: int) -> None:
-        """删除商品(软删除，管理员)"""
+        """删除商品(软删除, 管理员)"""
         product = self.get_product(product_id, check_active=False)
         product.is_active = False
         self.db.commit()

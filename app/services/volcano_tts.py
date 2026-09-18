@@ -63,9 +63,9 @@ class VolcanoTTSSession:
                         "speech_rate": self._speech_rate,
                     },
                     # additions 必须是 JSON 字符串(火山 Go 服务端定义为 string 类型)
-                    # 朗读时自动剥离 Markdown 语法与 emoji
+                    # 朗读时剥离 Markdown 语法; 保留 emoji: 火山 TTS 会识别心情类 emoji 并带情感朗读(实测有效)
                     "additions": json.dumps(
-                        {"disable_markdown_filter": True, "disable_emoji_filter": True}
+                        {"disable_markdown_filter": True, "disable_emoji_filter": False}
                     ),
                 },
             },

@@ -181,7 +181,7 @@ python scripts/seed_products.py
 
 ## 11. 云服务器 Docker 部署全流程(推荐)
 
-三个容器一键编排：`mysql` + `backend` + `frontend`(Nginx 托管前端并反代 `/api`、`/static`), 宿主机无需安装 Python/Node/MySQL。以下是从一台全新云服务器到网站可访问的完整过程。
+三个容器一键编排: `mysql` + `backend` + `frontend`(Nginx 托管前端并反代 `/api`, `/static`), 宿主机无需安装 Python/Node/MySQL. 以下是从一台全新云服务器到网站可访问的完整过程.
 
 ### 11.1 连接服务器并安装 Docker
 
@@ -198,17 +198,17 @@ docker -v
 docker compose version
 ```
 
-> 服务器配置建议：2 核 2G 起步(2G 内存请把 `.env` 中 `UVICORN_WORKERS` 设为 1)。国内服务器若拉取镜像慢, 自行配置 Docker 镜像加速器。
+> 服务器配置建议: 2 核 2G 起步(2G 内存请把 `.env` 中 `UVICORN_WORKERS` 设为 1). 国内服务器若拉取镜像慢, 自行配置 Docker 镜像加速器.
 
 ### 11.2 获取代码
 
 ```bash
-# 方式一：git clone(推荐)
+# 方式一: git clone(推荐)
 cd /opt
 git clone https://github.com/<你的用户名>/<仓库名>.git vesta-ecommerce
 cd vesta-ecommerce
 
-# 方式二：本地打包上传(在本地执行后传到服务器同目录)
+# 方式二: 本地打包上传(在本地执行后传到服务器同目录)
 # scp -r 项目目录 root@服务器IP:/opt/vesta-ecommerce
 ```
 
@@ -219,7 +219,7 @@ cp .env.example .env
 vi .env
 ```
 
-必须核对/修改的项：
+必须核对/修改的项:
 
 ```ini
 # ===== 数据库(Docker 环境固定写法)=====
@@ -246,7 +246,7 @@ UVICORN_WORKERS=2            # 2G 内存建议 1
 
 ### 11.4 云控制台放行端口
 
-在云厂商控制台的**安全组 / 防火墙**中放行：`80/TCP`(前端入口)。页面打不开九成是这一步漏了。SSH 的 22 端口一般默认已放行。
+在云厂商控制台的**安全组 / 防火墙**中放行: `80/TCP`(前端入口). 页面打不开九成是这一步漏了. SSH 的 22 端口一般默认已放行.
 
 ### 11.5 构建与启动
 
@@ -275,7 +275,7 @@ docker compose exec backend python scripts/seed_products.py
 | Swagger 文档 | `http://服务器IP/api/v1/docs`(经 Nginx 反代) |
 | 登录验证 | admin 登录 → 商品浏览 → 加购 → 结算 全流程 |
 
-至此部署完成。可选进阶：把域名 A 记录解析到服务器 IP, 并用 Certbot(`docker run --rm -p 80:80 certbot/certbot ...`)或宿主机 Nginx 加一层 HTTPS。
+至此部署完成. 可选进阶: 把域名 A 记录解析到服务器 IP, 并用 Certbot(`docker run --rm -p 80:80 certbot/certbot ...`)或宿主机 Nginx 加一层 HTTPS.
 
 ### 11.8 常用运维指令速查
 
@@ -294,7 +294,7 @@ docker compose exec backend python scripts/seed_products.py
 | 重新执行种子脚本 | `docker compose exec backend python scripts/seed_products.py` |
 | 查看资源占用 | `docker stats` |
 | 清理悬空镜像 | `docker image prune -f` |
-| **危险：彻底重置(含数据)** | `docker compose down -v`(删除全部数据卷, 慎用) |
+| **危险: 彻底重置(含数据)** | `docker compose down -v`(删除全部数据卷, 慎用) |
 
 ### 11.9 Docker 环境常见问题
 
@@ -309,14 +309,14 @@ docker compose exec backend python scripts/seed_products.py
 
 ### 11.10 语音通话与 HTTPS(启用语音功能必读)
 
-智能客服的**语音通话**(麦克风输入 + AI 语音应答)依赖浏览器麦克风权限, 而麦克风**只在 HTTPS(或 localhost)下开放**——纯 `http://IP` 部署无法使用语音, 文字客服不受影响。
+智能客服的**语音通话**(麦克风输入 + AI 语音应答)依赖浏览器麦克风权限, 而麦克风**只在 HTTPS(或 localhost)下开放** -- 纯 `http://IP` 部署无法使用语音, 文字客服不受影响.
 
-启用步骤：
+启用步骤:
 
-1. **域名解析**：将域名 A 记录指向服务器 IP
-2. **火山引擎配置**：在 [火山引擎控制台](https://console.volcengine.com/speech) 开通「豆包流式语音识别」与「语音合成大模型」, 创建 API Key 填入 `.env` 的 `VOLCANO_API_KEY`(ASR/TTS 按用量计费)
-3. **HTTPS 证书**：宿主机安装 Certbot 签发免费证书后, 在前端容器前加一层宿主机 Nginx 做 443 终结, 或直接在前端容器挂载证书配置 443
-4. **WebSocket 转发**：若使用宿主机 Nginx 终结 HTTPS, `/api/` 的 location 必须支持 WebSocket 升级：
+1. **域名解析**: 将域名 A 记录指向服务器 IP
+2. **火山引擎配置**: 在 [火山引擎控制台](https://console.volcengine.com/speech) 开通「豆包流式语音识别」与「语音合成大模型」, 创建 API Key 填入 `.env` 的 `VOLCANO_API_KEY`(ASR/TTS 按用量计费)
+3. **HTTPS 证书**: 宿主机安装 Certbot 签发免费证书后, 在前端容器前加一层宿主机 Nginx 做 443 终结, 或直接在前端容器挂载证书配置 443
+4. **WebSocket 转发**: 若使用宿主机 Nginx 终结 HTTPS, `/api/` 的 location 必须支持 WebSocket 升级:
 
 ```nginx
 location /api/ {
@@ -329,4 +329,4 @@ location /api/ {
 }
 ```
 
-验证：打开客服面板 → 点「语音通话」→ 浏览器询问麦克风权限 → 页面顶部出现半透明悬浮通话条并显示「我在听, 请讲」即接通。通话期间可正常浏览商城, 建议佩戴耳机(回声消除依赖浏览器 AEC)。
+验证: 打开客服面板 → 点「语音通话」→ 浏览器询问麦克风权限 → 页面顶部出现半透明悬浮通话条并显示「我在听, 请讲」即接通. 通话期间可正常浏览商城, 建议佩戴耳机(回声消除依赖浏览器 AEC).

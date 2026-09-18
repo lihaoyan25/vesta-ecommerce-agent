@@ -33,9 +33,9 @@
 ```text
 vesta‑ecommerce/
 ├── app/                        # 后端应用
-│   ├── main.py                 # 应用入口: 生命周期、CORS、全局异常、路由挂载
+│   ├── main.py                 # 应用入口: 生命周期, CORS, 全局异常, 路由挂载
 │   ├── config.py               # 配置(pydantic-settings 读取 .env)
-│   ├── database.py             # 数据库引擎、会话工厂、Base
+│   ├── database.py             # 数据库引擎, 会话工厂, Base
 │   ├── api/
 │   │   ├── deps.py             # 依赖注入: get_current_user / get_current_superuser
 │   │   └── v1/
@@ -46,7 +46,7 @@ vesta‑ecommerce/
 │   ├── dao/                    # 数据访问层(不含 commit, 事务交给 service)
 │   ├── models/                 # SQLAlchemy ORM 模型
 │   ├── tools/                  # 智能客服工具层(LLM function calling, 复用 service 层)
-│   ├── utils/                  # 通用工具(JWT、密码)
+│   ├── utils/                  # 通用工具(JWT, 密码)
 │   └── prompts/                # 智能客服系统提示词(System Prompt)
 ├── frontend/                   # 前端应用(Vite + Vue3)
 │   ├── src/api/                # Axios 封装与接口定义
@@ -72,7 +72,7 @@ routes(路由) → services(业务) → dao(数据访问) → models(ORM)
 
 各层职责: 
 
-- **routes**: 仅做参数接收、鉴权依赖注入、调用 service、统一响应包装不写业务逻辑
+- **routes**: 仅做参数接收, 鉴权依赖注入, 调用 service, 统一响应包装不写业务逻辑
 - **services**: 承载业务规则, **控制事务边界**(显式 `commi()` / `rollbac()`)
 - **dao**: 只封装 SQLAlchemy 查询, **不自行 `commi()`**, 将事务提交权上交给 service
 - **models**: 数据库表结构与关联关系定义
@@ -100,7 +100,7 @@ routes(路由) → services(业务) → dao(数据访问) → models(ORM)
 
 ### 5.2 阻塞型 DB 操作异步化
 
-路由声明为 `async def`, 所有同步、阻塞的数据库调用必须通过线程池执行, 避免阻塞事件循环: 
+路由声明为 `async def`, 所有同步, 阻塞的数据库调用必须通过线程池执行, 避免阻塞事件循环: 
 
 ```python
 from fastapi.concurrency import run_in_threadpool
@@ -128,11 +128,11 @@ data = await run_in_threadpoo(cart_service.get_cart, current_user.user_id)
 - 对话经 `chat_service.chat_stream` 编排: 保存用户消息 → 组装上下文(滑动窗口 20 条) → 流式输出 → 工具调用循环(最多 5 轮, 超限强制作答) → 助手消息落库
 - 工具调用消息仅存在于单次请求的 LLM 上下文中, 不落库; `chat_messages` 只存用户/助手消息
 - 工具执行结果统一兜底为 `{ok, data|error}`, 永远限定当前用户数据权限
-- 商品查询为 **Text2SQL 统一工具**(`search_products`): 内部二次 LLM 生成 SQL(非流式+思考关闭+低温), 经 **sqlglot AST 硬校验**后执行——仅单条 SELECT、仅允许 `products` 表(含子查询/JOIN 全层级)、LIMIT 自动补齐/截断为 20; 订单/购物车查询仍走专用工具与 service 层, 不经 SQL 生成
+- 商品查询为 **Text2SQL 统一工具**(`search_products`): 内部二次 LLM 生成 SQL(非流式+思考关闭+低温), 经 **sqlglot AST 硬校验**后执行 -- 仅单条 SELECT, 仅允许 `products` 表(含子查询/JOIN 全层级), LIMIT 自动补齐/截断为 20; 订单/购物车查询仍走专用工具与 service 层, 不经 SQL 生成
 - 商品/订单卡片随消息发送时, 后端生成快照文本注入上下文并随消息存库, 历史重建零额外查询
 - 思考模式由 `.env` 的 `DEEPSEEK_THINKING` 开关控制, 请求体显式写入 `thinking.type`(V4 系列服务端默认 `enabled`, 必须显式覆盖), 不向前端暴露开关
 - `DEEPSEEK_API_KEY` 未配置时客服接口统一返回 503, 不影响主站功能
-- **语音通话**: `routes/voice.py` WebSocket 网关编排 火山流式 ASR(`volcano_asr.py`) → **复用 chat_stream** → 火山双向流式 TTS(`volcano_tts.py`); 二进制协议编解码在 `volcano_protocol.py`(事件号对照官方 demo); 并发模型三协程——主循环(音频透传) + asr_reader(definite 增量分句入队, 按「已消费分句数」去重防重复触发) + round_runner(顺序执行轮次, **每轮独立 TTS 会话**, FinishSession 后须重新 StartSession); 打断=静音不取消: 前端本地能量检测(依赖 AEC)发 `barge_in`, 网关停发音频但轮次后台跑完(工具调用/落库不丢), 新话语排队顺延; 语速由 `VOLCANO_TTS_SPEECH_RATE` 控制; 由 `VOLCANO_API_KEY` 启停, 麦克风需 HTTPS 环境
+- **语音通话**: `routes/voice.py` WebSocket 网关编排 火山流式 ASR(`volcano_asr.py`) → **复用 chat_stream** → 火山双向流式 TTS(`volcano_tts.py`); 二进制协议编解码在 `volcano_protocol.py`(事件号对照官方 demo); 并发模型三协程 -- 主循环(音频透传) + asr_reader(definite 增量分句入队, 按「已消费分句数」去重防重复触发) + round_runner(顺序执行轮次, **每轮独立 TTS 会话**, FinishSession 后须重新 StartSession); 打断=静音不取消: 前端本地能量检测(依赖 AEC)发 `barge_in`, 网关停发音频但轮次后台跑完(工具调用/落库不丢), 新话语排队顺延; 语速由 `VOLCANO_TTS_SPEECH_RATE` 控制; 由 `VOLCANO_API_KEY` 启停, 麦克风需 HTTPS 环境
 - SSE 流式接口需注意 Nginx 反代时关闭缓冲(`X-Accel-Buffering: no` 响应头已内置)
 
 ## 6. 本地开发环境搭建
@@ -187,7 +187,7 @@ npm run dev          # 默认 http://localhost:3000
 ## 8. 代码规范提示
 
 - 时间戳统一使用 naive `datetime.now`(单时区部署, 不引入时区对象)
-- 金额(价格、余额、充值金额等)全链路使用 `Decimal`: 数据库列用 `DECIMA(14, 2)`, schema 字段(如 `price`、`balance`、`amount`)声明为 `Decimal` 而非 `float`, service 层运算保持 `Decimal` 不混入 float; 仅在 FastAPI 序列化响应时由框架转成 JSON 数字
+- 金额(价格, 余额, 充值金额等)全链路使用 `Decimal`: 数据库列用 `DECIMA(14, 2)`, schema 字段(如 `price`, `balance`, `amount`)声明为 `Decimal` 而非 `float`, service 层运算保持 `Decimal` 不混入 float; 仅在 FastAPI 序列化响应时由框架转成 JSON 数字
 - 密码通过 `hash_password` / `verify_password` 处理, 禁止明文存储
 - 新增接口时同步在 `schemas` 定义请求/响应模型, 并遵循统一响应结构
 - 前端所有请求统一走 `src/api/request.js` 封装的实例, 不要直接使用原生 `axios`(刷新令牌的场景除外)

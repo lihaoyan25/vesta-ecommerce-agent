@@ -1,6 +1,6 @@
 """商品 Text2SQL 查询
 
-流程: 自然语言问题 → LLM 生成 SQL(非流式、思考关闭、低温)
+流程: 自然语言问题 → LLM 生成 SQL(非流式, 思考关闭, 低温)
     → sqlglot AST 硬校验(仅单条 SELECT / 仅 products 表 / 自动 LIMIT)
     → 执行 → 行转 JSON 
 
@@ -94,6 +94,18 @@ def validate_and_rewrite(sql: str) -> str:
     return tree.sql(dialect="mysql")
 
 
+def _catalog_snapshot(db: Session) -> str:
+    """当前商品清单快照: 品类词到实际商品的映射依据(商品名多为英文型号)"""
+    rows = db.execute(text(
+        "SELECT product_id, name, price, is_active FROM products ORDER BY product_id"
+    )).mappings().all()
+    lines = [
+        f"- id={r['product_id']}, {r['name']}, {r['price']}元, {'在售' if r['is_active'] else '已下架'}"
+        for r in rows
+    ]
+    return "当前商品清单(品类词必须映射到其中的真实商品):\n" + "\n".join(lines)
+
+
 def run_product_query(db: Session, question: str) -> Dict[str, Any]:
     """统一商品查询入口: LLM 写 SQL → 校验改写 → 执行 
 
@@ -103,12 +115,12 @@ def run_product_query(db: Session, question: str) -> Dict[str, Any]:
     if not question.strip():
         raise HTTPException(status_code=400, detail="请描述要查询的商品条件")
 
-    # 1. LLM 生成 SQL(非流式、思考关闭、低温)
+    # 1. LLM 生成 SQL(非流式, 思考关闭, 低温); 附带商品清单, 避免品类词猜关键词失败
     try:
         raw_sql = chat_completion_sync(
             messages=[
                 {"role": "system", "content": _load_sql_writer_prompt()},
-                {"role": "user", "content": question},
+                {"role": "user", "content": f"{question}\n\n{_catalog_snapshot(db)}"},
             ],
             temperature=0.0,
             thinking=False,

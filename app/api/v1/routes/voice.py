@@ -5,7 +5,7 @@
                         └─ 每句对话复用 chat_stream(工具循环/会话记忆/落库不变)
 
 浏览器 → 网关: 二进制帧 = PCM 16k 16bit mono 麦克风音频(约200ms/帧, 直接透传 ASR); 
-        文本帧 = JSON 控制: {"type":"stop"} 挂断、{"type":"audio_played"} 本句音频已播完、{"type":"barge_in"} 用户开口打断
+        文本帧 = JSON 控制: {"type":"stop"} 挂断, {"type":"audio_played"} 本句音频已播完, {"type":"barge_in"} 用户开口打断
 网关 → 浏览器(JSON 文本帧): 
   {"type":"status","phase":"listening|thinking|speaking"}
   {"type":"subtitle","text":..}                  ASR 实时字幕(增量累计文本)
@@ -87,7 +87,7 @@ async def run_call(ws: WebSocket, user_id: int, chat_session_id: int) -> None:
     async def interrupt_if_speaking() -> None:
         """用户在 AI 说话时开口: 立即停止播报(静音), 当前轮次后台跑完 
 
-        轮次里的工具调用(改购物车等)与消息落库必须完整执行, 因此只静音、不取消任务; 
+        轮次里的工具调用(改购物车等)与消息落库必须完整执行, 因此只静音, 不取消任务; 
         用户打断时说的新话语已进入队列, 本轮结束后立即处理 
         """
         if phase["value"] == PHASE_SPEAKING and round_task and not round_task.done():
