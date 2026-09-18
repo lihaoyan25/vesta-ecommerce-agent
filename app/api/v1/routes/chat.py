@@ -1,4 +1,4 @@
-"""智能客服路由（SSE 流式）"""
+"""智能客服路由(SSE 流式)"""
 import json
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.concurrency import run_in_threadpool
@@ -17,9 +17,9 @@ router = APIRouter()
 
 
 def _ensure_llm_enabled():
-    """客服功能依赖 LLM 配置，未配置时统一拒绝"""
+    """客服功能依赖 LLM 配置, 未配置时统一拒绝"""
     if not settings.LLM_ENABLED:
-        raise HTTPException(status_code=503, detail="智能客服功能未启用，请先配置 DEEPSEEK_API_KEY")
+        raise HTTPException(status_code=503, detail="智能客服功能未启用, 请先配置 DEEPSEEK_API_KEY")
 
 
 @router.post("/sessions")
@@ -77,7 +77,7 @@ async def get_recommendations(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """推荐卡片（最近订单 + 在售商品），前端渲染后可随消息回发给客服"""
+    """推荐卡片(最近订单 + 在售商品), 前端渲染后可随消息回发给客服"""
     _ensure_llm_enabled()
     chat_service = ChatService(db)
     data = await run_in_threadpool(chat_service.get_recommendations, current_user.user_id)
@@ -91,9 +91,9 @@ async def stream_message(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """发送消息并流式接收回复（SSE）
+    """发送消息并流式接收回复(SSE)
 
-    事件流格式（text/event-stream，每事件一行 data JSON）：
+    事件流格式(text/event-stream, 每事件一行 data JSON): 
       data: {"type": "meta",  "session_id": 1, "user_message_id": 10}
       data: {"type": "delta", "content": "部分回复文本"}
       data: {"type": "tool",  "name": "query_my_orders", "display": "正在查询订单"}
@@ -113,13 +113,13 @@ async def stream_message(
             ):
                 yield f"data: {json.dumps(event, ensure_ascii=False, default=str)}\n\n"
         except Exception:
-            yield f"data: {json.dumps({'type': 'error', 'message': '客服服务异常，请稍后再试'}, ensure_ascii=False)}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': '客服服务异常, 请稍后再试'}, ensure_ascii=False)}\n\n"
 
     return StreamingResponse(
         event_generator(),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no",  # Nginx 反代时关闭缓冲，保证流式即时到达
+            "X-Accel-Buffering": "no",  # Nginx 反代时关闭缓冲, 保证流式即时到达
         },
     )

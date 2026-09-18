@@ -13,3 +13,4 @@ email-validator==2.1.1
 python-dotenv==1.0.1
 httpx==0.26.0
 sqlglot==25.20.1
+websockets==12.0

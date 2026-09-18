@@ -26,7 +26,7 @@ class ProductService:
         page_size: int = 10,
         only_active: bool = True
     ) -> Tuple[List[Product], int]:
-        """获取商品列表（分页）"""
+        """获取商品列表(分页)"""
         skip = (page - 1) * page_size
         products = self.product_dao.get_list(self.db, skip, page_size, only_active)
         total = self.product_dao.count(self.db, only_active)
@@ -39,7 +39,7 @@ class ProductService:
         page_size: int = 10,
         only_active: bool = True
     ) -> Tuple[List[Product], int]:
-        """搜索商品（分页）"""
+        """搜索商品(分页)"""
         skip = (page - 1) * page_size
         products = self.product_dao.search(self.db, keyword, skip, page_size, only_active)
         total = self.product_dao.search_count(self.db, keyword, only_active)
@@ -53,7 +53,7 @@ class ProductService:
         description: str | None = None,
         image_url: str | None = None
     ) -> Product:
-        """创建商品 (管理员)"""
+        """创建商品(管理员)"""
         product = Product(
             name=name,
             price=price,
@@ -68,7 +68,7 @@ class ProductService:
         return product
 
     def update_product(self, product_id: int, update_data: dict) -> Product:
-        """更新商品 (管理员)"""
+        """更新商品(管理员)"""
         product = self.get_product(product_id, check_active=False)
         for key, value in update_data.items():
             if value is not None and hasattr(product, key):
@@ -78,7 +78,7 @@ class ProductService:
         return product
 
     def delete_product(self, product_id: int) -> None:
-        """删除商品（软删除，管理员）"""
+        """删除商品(软删除，管理员)"""
         product = self.get_product(product_id, check_active=False)
         product.is_active = False
         self.db.commit()

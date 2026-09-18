@@ -28,13 +28,13 @@ HISTORY_LIMIT = 20
 # 单次提问的工具调用轮数上限(防死循环)
 MAX_TOOL_ROUNDS = 5
 
-# 系统提示词外置文件（工具清单手写在提示词内，便于随时调试，改文件即生效）
+# 系统提示词外置文件(工具清单手写在提示词内, 便于随时调试, 改文件即生效)
 SYSTEM_PROMPT_FILE = Path(__file__).resolve().parent.parent / "prompts" / "system_prompt.md"
 _prompt_cache: Dict[str, Any] = {"mtime": None, "text": ""}
 
 
 def load_system_prompt() -> str:
-    """读取外置系统提示词；按文件 mtime 缓存，文件更新后自动重载（无需重启）"""
+    """读取外置系统提示词; 按文件 mtime 缓存, 文件更新后自动重载(无需重启)"""
     if not SYSTEM_PROMPT_FILE.exists():
         raise RuntimeError(f"系统提示词文件缺失: {SYSTEM_PROMPT_FILE}")
     mtime = SYSTEM_PROMPT_FILE.stat().st_mtime
@@ -243,7 +243,7 @@ class ChatService:
     def _save_user_message(
         self, user_id: int, session_id: int, content: str, context_json: Optional[str]
     ) -> ChatMessage:
-        """保存用户消息；首条消息自动生成会话标题"""
+        """保存用户消息; 首条消息自动生成会话标题"""
         session = self._get_owned_session(user_id, session_id)
         if session.title == "新会话":
             session.title = content[:20]

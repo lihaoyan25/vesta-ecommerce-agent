@@ -86,7 +86,7 @@ async def forgot_password(
     reset_in: ForgotPasswordRequest,
     db: Session = Depends(get_db),
 ):
-    """忘记密码：通过 账号(用户名或邮箱) + 手机号 验证身份后重置密码（无需登录）"""
+    """忘记密码: 通过 账号(用户名或邮箱) + 手机号 验证身份后重置密码(无需登录)"""
     user_service = UserService(db)
     await run_in_threadpool(
         user_service.reset_password,
@@ -94,7 +94,7 @@ async def forgot_password(
         reset_in.phone,
         reset_in.new_password,
     )
-    return success_response(message="密码重置成功，请使用新密码登录")
+    return success_response(message="密码重置成功, 请使用新密码登录")
 
 
 @router.get("/me")

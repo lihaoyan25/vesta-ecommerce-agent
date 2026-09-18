@@ -5,7 +5,7 @@
 本项目为前后端分离架构, 推荐生产部署方案: 
 
 - **云服务器首选: Docker Compose 一键部署**, 见 [第 11 章 全流程](#11-云服务器-docker-部署全流程推荐)
-- 传统手动部署 (宿主机 Nginx + venv + uvicorn) 见第 4~8 章
+- 传统手动部署(宿主机 Nginx + venv + uvicorn) 见第 4~8 章
 
 - **后端**: FastAPI 应用由 `uvicorn` 运行, 通过 Nginx 反向代理对外提供服务
 - **前端**: Vite 构建出静态文件, 由 Nginx 直接托管并代理 `/api`, `/static` 请求到后端
@@ -179,17 +179,17 @@ python scripts/seed_products.py
 - 建议启用 HTTPS (可配合 Let's Encrypt 证书)
 - 定期备份数据库, 尤其是 `users`, `products`, `cart_items` 表
 
-## 11. 云服务器 Docker 部署全流程（推荐）
+## 11. 云服务器 Docker 部署全流程(推荐)
 
-三个容器一键编排：`mysql` + `backend` + `frontend`（Nginx 托管前端并反代 `/api`、`/static`），宿主机无需安装 Python/Node/MySQL。以下是从一台全新云服务器到网站可访问的完整过程。
+三个容器一键编排：`mysql` + `backend` + `frontend`(Nginx 托管前端并反代 `/api`、`/static`), 宿主机无需安装 Python/Node/MySQL。以下是从一台全新云服务器到网站可访问的完整过程。
 
 ### 11.1 连接服务器并安装 Docker
 
 ```bash
-# SSH 登录云服务器（以 root 为例，建议使用普通用户 + sudo）
+# SSH 登录云服务器(以 root 为例, 建议使用普通用户 + sudo)
 ssh root@服务器IP
 
-# 安装 Docker（官方脚本，适用于 Ubuntu/Debian/CentOS）
+# 安装 Docker(官方脚本, 适用于 Ubuntu/Debian/CentOS)
 curl -fsSL https://get.docker.com | sh
 systemctl enable --now docker
 
@@ -198,17 +198,17 @@ docker -v
 docker compose version
 ```
 
-> 服务器配置建议：2 核 2G 起步（2G 内存请把 `.env` 中 `UVICORN_WORKERS` 设为 1）。国内服务器若拉取镜像慢，自行配置 Docker 镜像加速器。
+> 服务器配置建议：2 核 2G 起步(2G 内存请把 `.env` 中 `UVICORN_WORKERS` 设为 1)。国内服务器若拉取镜像慢, 自行配置 Docker 镜像加速器。
 
 ### 11.2 获取代码
 
 ```bash
-# 方式一：git clone（推荐）
+# 方式一：git clone(推荐)
 cd /opt
 git clone https://github.com/<你的用户名>/<仓库名>.git vesta-ecommerce
 cd vesta-ecommerce
 
-# 方式二：本地打包上传（在本地执行后传到服务器同目录）
+# 方式二：本地打包上传(在本地执行后传到服务器同目录)
 # scp -r 项目目录 root@服务器IP:/opt/vesta-ecommerce
 ```
 
@@ -222,26 +222,31 @@ vi .env
 必须核对/修改的项：
 
 ```ini
-# ===== 数据库（Docker 环境固定写法）=====
-DATABASE_HOST=mysql          # 容器网络内用服务名访问，不是 localhost
-DATABASE_USER=shop_user      # 不能是 root（compose 首次启动自动建库建用户）
+# ===== 数据库(Docker 环境固定写法)=====
+DATABASE_HOST=mysql          # 容器网络内用服务名访问, 不是 localhost
+DATABASE_USER=shop_user      # 不能是 root(compose 首次启动自动建库建用户)
 DATABASE_PASSWORD=<强密码>
 DATABASE_NAME=shop_cart_sys_v2_0
 
 # ===== 应用 =====
 DEBUG=False
 SECRET_KEY=<随机长字符串>     # python -c "import secrets;print(secrets.token_hex(32))"
-DEEPSEEK_API_KEY=<你的Key>    # 不填则智能客服停用，主站不受影响
+DEEPSEEK_API_KEY=<你的Key>    # 不填则智能客服停用, 主站不受影响
+
+# ===== 火山引擎语音(智能客服语音通话; 不填则语音按钮提示未启用)=====
+VOLCANO_API_KEY=<火山控制台API Key>
+VOLCANO_TTS_SPEAKER=zh_female_xiaohe_uranus_bigtts
+VOLCANO_TTS_SPEECH_RATE=15  # 语速[-50,100], 100=2.0倍速, 0=原生; 15≈豆包App语速
 
 # ===== Docker 专用 =====
 MYSQL_ROOT_PASSWORD=<强随机密码>
-FRONTEND_PORT=80             # 对外端口，80 被占用可改 8080
+FRONTEND_PORT=80             # 对外端口, 80 被占用可改 8080
 UVICORN_WORKERS=2            # 2G 内存建议 1
 ```
 
 ### 11.4 云控制台放行端口
 
-在云厂商控制台的**安全组 / 防火墙**中放行：`80/TCP`（前端入口）。页面打不开九成是这一步漏了。SSH 的 22 端口一般默认已放行。
+在云厂商控制台的**安全组 / 防火墙**中放行：`80/TCP`(前端入口)。页面打不开九成是这一步漏了。SSH 的 22 端口一般默认已放行。
 
 ### 11.5 构建与启动
 
@@ -250,8 +255,8 @@ docker compose up -d --build
 docker compose ps            # 三个容器应为 running / healthy
 ```
 
-- MySQL 首次启动自动建库建用户，数据持久化在命名卷 `mysql-data`
-- 商品图片目录以 `./static` 挂载到后端容器，宿主机直接管理
+- MySQL 首次启动自动建库建用户, 数据持久化在命名卷 `mysql-data`
+- 商品图片目录以 `./static` 挂载到后端容器, 宿主机直接管理
 
 ### 11.6 初始化管理员与示例商品
 
@@ -267,10 +272,10 @@ docker compose exec backend python scripts/seed_products.py
 | 项目 | 地址 |
 | --- | --- |
 | 前端 | `http://服务器IP` |
-| Swagger 文档 | `http://服务器IP/api/v1/docs`（经 Nginx 反代） |
+| Swagger 文档 | `http://服务器IP/api/v1/docs`(经 Nginx 反代) |
 | 登录验证 | admin 登录 → 商品浏览 → 加购 → 结算 全流程 |
 
-至此部署完成。可选进阶：把域名 A 记录解析到服务器 IP，并用 Certbot（`docker run --rm -p 80:80 certbot/certbot ...`）或宿主机 Nginx 加一层 HTTPS。
+至此部署完成。可选进阶：把域名 A 记录解析到服务器 IP, 并用 Certbot(`docker run --rm -p 80:80 certbot/certbot ...`)或宿主机 Nginx 加一层 HTTPS。
 
 ### 11.8 常用运维指令速查
 
@@ -289,15 +294,39 @@ docker compose exec backend python scripts/seed_products.py
 | 重新执行种子脚本 | `docker compose exec backend python scripts/seed_products.py` |
 | 查看资源占用 | `docker stats` |
 | 清理悬空镜像 | `docker image prune -f` |
-| **危险：彻底重置（含数据）** | `docker compose down -v`（删除全部数据卷，慎用） |
+| **危险：彻底重置(含数据)** | `docker compose down -v`(删除全部数据卷, 慎用) |
 
 ### 11.9 Docker 环境常见问题
 
 | 问题 | 排查方向 |
 | --- | --- |
-| 页面打不开 | 云安全组未放行 80；`FRONTEND_PORT` 是否被占用（`ss -tlnp \| grep 80`） |
-| 后端起不来连不上库 | `docker compose logs backend`；确认 `.env` 中 `DATABASE_HOST=mysql` |
-| 首页能开但接口 502 | 后端未就绪或崩溃，看 backend 日志与健康检查 |
-| 客服 SSE 不流式 | 确认流量直达 frontend 容器，中间无额外 CDN/代理开启缓冲 |
+| 页面打不开 | 云安全组未放行 80; `FRONTEND_PORT` 是否被占用(`ss -tlnp \| grep 80`) |
+| 后端起不来连不上库 | `docker compose logs backend`; 确认 `.env` 中 `DATABASE_HOST=mysql` |
+| 首页能开但接口 502 | 后端未就绪或崩溃, 看 backend 日志与健康检查 |
+| 客服 SSE 不流式 | 确认流量直达 frontend 容器, 中间无额外 CDN/代理开启缓冲 |
 | 拉取镜像超时 | 配置 Docker 镜像加速器后重试 |
-| 磁盘占满 | `docker system df` 查看，`docker system prune -f` 清理 |
+| 磁盘占满 | `docker system df` 查看, `docker system prune -f` 清理 |
+
+### 11.10 语音通话与 HTTPS(启用语音功能必读)
+
+智能客服的**语音通话**(麦克风输入 + AI 语音应答)依赖浏览器麦克风权限, 而麦克风**只在 HTTPS(或 localhost)下开放**——纯 `http://IP` 部署无法使用语音, 文字客服不受影响。
+
+启用步骤：
+
+1. **域名解析**：将域名 A 记录指向服务器 IP
+2. **火山引擎配置**：在 [火山引擎控制台](https://console.volcengine.com/speech) 开通「豆包流式语音识别」与「语音合成大模型」, 创建 API Key 填入 `.env` 的 `VOLCANO_API_KEY`(ASR/TTS 按用量计费)
+3. **HTTPS 证书**：宿主机安装 Certbot 签发免费证书后, 在前端容器前加一层宿主机 Nginx 做 443 终结, 或直接在前端容器挂载证书配置 443
+4. **WebSocket 转发**：若使用宿主机 Nginx 终结 HTTPS, `/api/` 的 location 必须支持 WebSocket 升级：
+
+```nginx
+location /api/ {
+    proxy_pass http://127.0.0.1:8080;   # frontend 容器映射端口
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+    proxy_buffering off;
+    proxy_read_timeout 300s;
+}
+```
+
+验证：打开客服面板 → 点「语音通话」→ 浏览器询问麦克风权限 → 页面顶部出现半透明悬浮通话条并显示「我在听, 请讲」即接通。通话期间可正常浏览商城, 建议佩戴耳机(回声消除依赖浏览器 AEC)。

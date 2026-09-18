@@ -16,7 +16,7 @@ class ChatSession(Base):
     # 外键 - 关联用户
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"), nullable=False, index=True, comment="用户 ID")
 
-    # 会话标题（默认取首条消息截断）
+    # 会话标题(默认取首条消息截断)
     title: Mapped[str] = mapped_column(String(100), default="新会话", nullable=False, comment="会话标题")
 
     # 时间戳
@@ -48,7 +48,7 @@ class ChatMessage(Base):
     # 消息内容
     content: Mapped[str] = mapped_column(Text, nullable=False, comment="消息内容")
 
-    # 卡片上下文快照（JSON 字符串: {type, id, text}，用户发送商品/订单卡片时记录）
+    # 卡片上下文快照(JSON 字符串: {type, id, text}，用户发送商品/订单卡片时记录)
     context: Mapped[str | None] = mapped_column(Text, nullable=True, comment="卡片上下文快照 JSON")
 
     # 时间戳

@@ -72,11 +72,11 @@ class UserResponse(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    """更新个人资料：改邮箱/手机号需提供当前密码确认；改用户名无需"""
+    """更新个人资料: 改邮箱/手机号需提供当前密码确认; 改用户名无需"""
     username: Optional[str] = Field(None, description="用户名")
     email: Optional[EmailStr] = Field(None, description="邮箱")
     phone: Optional[str] = Field(None, description="手机号")
-    current_password: Optional[str] = Field(None, description="当前密码，修改邮箱/手机号时必填")
+    current_password: Optional[str] = Field(None, description="当前密码, 修改邮箱/手机号时必填")
 
     @field_validator("phone")
     @classmethod
@@ -90,11 +90,11 @@ class UserPasswordUpdate(BaseModel):
 
 
 class ForgotPasswordRequest(BaseModel):
-    """忘记密码：通过 账号(用户名或邮箱) + 手机号 验证身份后重置密码
+    """忘记密码: 通过 账号(用户名或邮箱) + 手机号 验证身份后重置密码
 
-    预留升级：后续接入邮件服务时可在此模型上扩展验证码字段
+    预留升级: 后续接入邮件服务时可在此模型上扩展验证码字段
     """
-    account: str = Field(..., description="账号：用户名或邮箱")
+    account: str = Field(..., description="账号: 用户名或邮箱")
     phone: str = Field(..., description="注册时绑定的手机号")
     new_password: str = Field(..., min_length=8, max_length=20, description="新密码")
     password_confirm: str = Field(..., description="确认新密码")

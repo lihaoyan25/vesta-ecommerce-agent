@@ -1,7 +1,7 @@
 """客服工具注册表
 
-工具以装饰器方式注册，统一暴露为 OpenAI function calling 格式；
-执行入口 execute_tool 统一做异常兜底，保证 LLM 拿到的永远是可序列化的结果。
+工具以装饰器方式注册, 统一暴露为 OpenAI function calling 格式; 
+执行入口 execute_tool 统一做异常兜底, 保证 LLM 拿到的永远是可序列化的结果 
 """
 import json
 from dataclasses import dataclass
@@ -12,10 +12,10 @@ from sqlalchemy.orm import Session
 
 @dataclass(frozen=True)
 class ToolDefinition:
-    name: str                       # 工具名（LLM 可见）
-    description: str                # 工具描述（LLM 可见）
-    parameters: Dict[str, Any]      # 参数 JSON Schema（LLM 可见）
-    display: str                    # 前端展示名（如「正在查询订单」）
+    name: str                       # 工具名(LLM 可见)
+    description: str                # 工具描述(LLM 可见)
+    parameters: Dict[str, Any]      # 参数 JSON Schema(LLM 可见)
+    display: str                    # 前端展示名(如「正在查询订单」)
     handler: Callable[[Session, int, Dict[str, Any]], Any]  # (db, user_id, args) -> 可序列化结果
 
 
@@ -50,7 +50,7 @@ def get_openai_tools() -> List[dict]:
 
 
 def execute_tool(db: Session, user_id: int, name: str, args: Dict[str, Any]) -> dict:
-    """执行工具并做统一异常兜底，返回结构化结果（保证可 JSON 序列化）"""
+    """执行工具并做统一异常兜底, 返回结构化结果(保证可 JSON 序列化)"""
     tool = get_tool(name)
     if not tool:
         return {"ok": False, "error": f"未知工具: {name}"}
@@ -60,7 +60,7 @@ def execute_tool(db: Session, user_id: int, name: str, args: Dict[str, Any]) -> 
     except HTTPException as e:
         return {"ok": False, "error": e.detail}
     except Exception:
-        return {"ok": False, "error": "工具执行失败，请稍后重试"}
+        return {"ok": False, "error": "工具执行失败, 请稍后重试"}
 
 
 def dump_tool_result(result: dict) -> str:

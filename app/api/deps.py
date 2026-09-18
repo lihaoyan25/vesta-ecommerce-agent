@@ -6,7 +6,7 @@ from app.database import get_db
 from app.models.user import User
 from app.utils.security import verify_access_token
 
-# OAuth2方案：从请求头提取Token
+# OAuth2方案: 从请求头提取Token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 def get_current_user(
@@ -41,6 +41,6 @@ def get_current_superuser(
     if current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="权限不足，仅管理员可访问"
+            detail="权限不足, 仅管理员可访问"
         )
     return current_user

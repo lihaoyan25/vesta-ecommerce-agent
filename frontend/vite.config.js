@@ -8,7 +8,8 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:8000',
-        changeOrigin: true
+        changeOrigin: true,
+        ws: true   // 语音通话 WebSocket 代理
       },
       // 新增静态资源代理！
       '/static': {

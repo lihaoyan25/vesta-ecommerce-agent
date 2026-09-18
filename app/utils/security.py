@@ -54,7 +54,7 @@ def create_refresh_token(subject: str | Any) -> str:
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
 
 def decode_token(token: str) -> Optional[Dict[str, Any]]:
-    """解码令牌（基础版）"""
+    """解码令牌(基础版)"""
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         return payload

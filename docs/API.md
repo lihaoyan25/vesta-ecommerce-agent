@@ -484,6 +484,38 @@ Authorization: Bearer <access_token>
 | done | message_id | 回复完成, 助手消息已落库 |
 | error | message | 出错提示 |
 
+### 7.7 语音通话(WebSocket)
+
+`WS /voice/call?token=<access_token>&session=<chat_session_id>`
+
+实时语音通话网关: 浏览器麦克风音频 → 火山流式 ASR 识别 → **复用 `chat_stream` 对话管线**(工具调用/会话记忆与文字客服完全一致) → 火山双向流式 TTS 合成音频回传。`VOLCANO_API_KEY` 未配置时连接即返回 `error` 事件并关闭; 麦克风权限要求 HTTPS(或 localhost)环境。
+
+上行消息:
+
+| 类型 | 格式 | 说明 |
+| --- | --- | --- |
+| 音频帧 | 二进制 | PCM 16k 16bit mono, 约 200ms/帧, 网关直接透传 ASR |
+| stop | 文本 JSON | 挂断, 结束通话 |
+| audio_played | 文本 JSON | 本句音频已播放完毕, 网关回到聆听状态 |
+| barge_in | 文本 JSON | 前端本地能量检测到用户开口(依赖浏览器回声消除), 网关立即静音当前播报 |
+
+下行消息:
+
+| 类型 type | 字段 | 说明 |
+| --- | --- | --- |
+| status | phase | 状态机: `listening`(聆听) / `thinking`(思考) / `speaking`(播报) |
+| subtitle | text | ASR 实时字幕(累计文本) |
+| final | text | 一句说完的确定分句, 触发一轮对话 |
+| assistant_delta | text | 回复文本增量 |
+| assistant_text | text | 本轮完整回复 |
+| tool | display | 正在调用工具(如「正在添加购物车」) |
+| audio | pcm | TTS 音频块(base64 PCM 24k, 语速由 `VOLCANO_TTS_SPEECH_RATE` 控制) |
+| audio_done | - | 本轮音频下发完毕 |
+| interrupted | - | 用户已打断, 播报停止 |
+| error | message | 出错提示 |
+
+打断语义: 播报期间用户开口只触发**静音**——立即停止下发音频与字幕, 但当前轮次的工具调用与消息落库在后台照常完成(说到做到); 打断时说的新话语进入队列, 本轮结束后立即处理。
+
 ## 8. 数据模型速查
 
 ### UserResponse

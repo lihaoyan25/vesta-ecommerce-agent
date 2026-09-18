@@ -229,7 +229,7 @@ async function handleDelete(order) {
 
 onMounted(() => {
   fetchOrders()
-  // 每秒刷新当前时间驱动倒计时；有订单倒计时归零时重新拉取列表（后端会惰性取消）
+  // 每秒刷新当前时间驱动倒计时; 有订单倒计时归零时重新拉取列表(后端会惰性取消)
   timer = setInterval(() => {
     now.value = Date.now()
     const expiredVisible = orders.value.some(

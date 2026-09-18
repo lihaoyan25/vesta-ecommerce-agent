@@ -1,7 +1,7 @@
 """DeepSeek LLM 客户端
 
-封装 OpenAI 兼容的 /chat/completions 接口，支持流式输出与 function calling
-仅做协议层封装，不含任何业务逻辑
+封装 OpenAI 兼容的 /chat/completions 接口, 支持流式输出与 function calling
+仅做协议层封装, 不含任何业务逻辑
 """
 import json
 from typing import AsyncIterator, List, Dict, Any, Optional
@@ -15,7 +15,7 @@ class LLMError(Exception):
 
 
 class LLMClient:
-    """DeepSeek 流式客户端(单例复用即可，无状态)"""
+    """DeepSeek 流式客户端(单例复用即可, 无状态)"""
 
     def __init__(self):
         self.base_url = settings.DEEPSEEK_BASE_URL.rstrip("/")
@@ -40,7 +40,7 @@ class LLMClient:
             "max_tokens": settings.DEEPSEEK_MAX_TOKENS,
             "top_p": settings.DEEPSEEK_TOP_P,
             "stream": True,
-            # 思考模式显式开关（服务端默认 enabled，不传会默认开启深度思考，延迟与成本翻倍）
+            # 思考模式显式开关(服务端默认 enabled, 不传会默认开启深度思考, 延迟与成本翻倍)
             "thinking": {"type": "enabled" if settings.DEEPSEEK_THINKING else "disabled"},
         }
         if tools:
@@ -61,7 +61,7 @@ class LLMClient:
                         body = (await resp.aread()).decode("utf-8", "ignore")
                         raise LLMError(f"LLM 接口返回 {resp.status_code}: {body[:200]}")
 
-                    # 累积分片 tool_calls(按 index 聚合，id/name/arguments 分片到达)
+                    # 累积分片 tool_calls(按 index 聚合, id/name/arguments 分片到达)
                     tool_acc: Dict[int, Dict[str, str]] = {}
 
                     async for line in resp.aiter_lines():
@@ -115,9 +115,9 @@ def chat_completion_sync(
     temperature: float = 0.0,
     thinking: bool = False,
 ) -> str:
-    """非流式对话（内部任务专用，如 Text2SQL 生成）。
+    """非流式对话(内部任务专用, 如 Text2SQL 生成) 
 
-    与流式接口相互独立：思考模式由参数显式指定，不读全局开关。
+    与流式接口相互独立: 思考模式由参数显式指定, 不读全局开关 
     """
     payload = {
         "model": llm_client.model,

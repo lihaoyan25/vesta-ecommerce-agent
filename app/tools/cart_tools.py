@@ -5,7 +5,7 @@ from app.services.cart_service import CartService
 
 @register_tool(
     name="query_my_cart",
-    description="查询当前用户的购物车（商品、数量、小计、合计）",
+    description="查询当前用户的购物车(商品、数量、小计、合计)",
     display="正在查询购物车",
     parameters={"type": "object", "properties": {}},
 )
@@ -15,13 +15,13 @@ def query_my_cart(db, user_id: int, args: dict) -> dict:
 
 @register_tool(
     name="add_to_cart",
-    description="把指定商品加入当前用户购物车（可指定数量，默认 1）",
+    description="把指定商品加入当前用户购物车(可指定数量, 默认 1)",
     display="正在添加购物车",
     parameters={
         "type": "object",
         "properties": {
             "product_id": {"type": "integer", "description": "商品 ID"},
-            "quantity": {"type": "integer", "description": "数量，默认 1"},
+            "quantity": {"type": "integer", "description": "数量, 默认 1"},
         },
         "required": ["product_id"],
     },
@@ -39,7 +39,7 @@ def add_to_cart(db, user_id: int, args: dict) -> dict:
         "type": "object",
         "properties": {
             "product_id": {"type": "integer", "description": "商品 ID"},
-            "quantity": {"type": "integer", "description": "新数量（至少 1）"},
+            "quantity": {"type": "integer", "description": "新数量(至少 1)"},
         },
         "required": ["product_id", "quantity"],
     },

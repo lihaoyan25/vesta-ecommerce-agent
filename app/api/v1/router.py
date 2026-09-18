@@ -1,6 +1,6 @@
 """API v1路由汇总"""
 from fastapi import APIRouter
-from .routes import auth, products, cart, users, orders, chat
+from .routes import auth, products, cart, users, orders, chat, voice
 
 api_router = APIRouter()
 
@@ -16,3 +16,5 @@ api_router.include_router(users.router, prefix="/users", tags=["用户"])
 api_router.include_router(orders.router, prefix="/orders", tags=["订单"])
 # 注册智能客服路由
 api_router.include_router(chat.router, prefix="/chat", tags=["智能客服"])
+# 注册语音通话路由（WebSocket）
+api_router.include_router(voice.router, prefix="/voice", tags=["语音通话"])

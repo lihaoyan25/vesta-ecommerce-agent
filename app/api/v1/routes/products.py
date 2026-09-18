@@ -19,7 +19,7 @@ async def get_products(
     page_size: int = Query(10, ge=1, le=100, description="每页数量"),
     db: Session = Depends(get_db),
 ):
-    """获取商品列表 (分页)"""
+    """获取商品列表(分页)"""
     product_service = ProductService(db)
     items, total = await run_in_threadpool(
         product_service.get_products, page, page_size, True
@@ -71,7 +71,7 @@ async def create_product(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_superuser),
 ):
-    """创建商品 (管理员)"""
+    """创建商品(管理员)"""
     product_service = ProductService(db)
     product = await run_in_threadpool(
         product_service.create_product,
@@ -91,7 +91,7 @@ async def update_product(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_superuser),
 ):
-    """更新商品 (管理员)"""
+    """更新商品(管理员)"""
     product_service = ProductService(db)
     product = await run_in_threadpool(
         product_service.update_product,
@@ -107,7 +107,7 @@ async def delete_product(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_superuser),
 ):
-    """删除商品 (管理员, 软删除)"""
+    """删除商品(管理员, 软删除)"""
     product_service = ProductService(db)
     await run_in_threadpool(product_service.delete_product, product_id)
     return success_response(message="删除成功")

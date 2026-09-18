@@ -26,6 +26,16 @@
         </div>
         <div class="flex items-center gap-1">
           <button
+            @click="startVoiceCall"
+            title="语音通话"
+            class="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:text-primary hover:bg-gray-bg btn-transition"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+          </button>
+          <button
             @click="view = view === 'chat' ? 'sessions' : 'chat'"
             :title="view === 'chat' ? '历史会话' : '返回对话'"
             class="w-8 h-8 rounded-lg flex items-center justify-center text-text-secondary hover:text-primary hover:bg-gray-bg btn-transition"
@@ -89,7 +99,7 @@
       <template v-else>
         <!-- 消息区 -->
         <div ref="messagesRef" class="flex-1 overflow-y-auto p-4 space-y-3">
-          <!-- 空会话：招呼语 + 预设问题卡片 -->
+          <!-- 空会话: 招呼语 + 预设问题卡片 -->
           <template v-if="chatStore.isEmpty">
             <div class="max-w-[85%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-white border border-border-light text-sm text-text-primary whitespace-pre-wrap shadow-card">
               {{ WELCOME_TEXT }}
@@ -127,12 +137,12 @@
                   <span class="inline-block w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
                   {{ m.toolStatus }}...
                 </div>
-                <!-- 等待首字回复：跳动圆点 + 柔闪提示文字 -->
+                <!-- 等待首字回复: 跳动圆点 + 柔闪提示文字 -->
                 <div v-if="m.streaming && !m.content && !m.toolStatus" class="flex items-center gap-2 py-0.5">
                   <span class="typing-dots"><i></i><i></i><i></i></span>
                   <span class="text-xs text-text-tertiary blink-soft">客服正在赶来...请稍等</span>
                 </div>
-                <!-- markdown 渲染（流式期间每次增量都会重渲染） -->
+                <!-- markdown 渲染(流式期间每次增量都会重渲染) -->
                 <div v-if="m.content" class="md-content break-words" v-html="renderMarkdown(m.content)"></div>
                 <span v-if="m.streaming && m.content && !m.toolStatus" class="text-primary animate-pulse">▍</span>
               </div>
@@ -140,7 +150,7 @@
           </template>
         </div>
 
-        <!-- 推荐卡片：仅空会话（新对话）时出现一次，可手动关闭 -->
+        <!-- 推荐卡片: 仅空会话(新对话)时出现一次, 可手动关闭 -->
         <div v-if="chatStore.isEmpty && !cardsDismissed && allCards.length > 0" class="border-t border-border-light bg-white/50 px-3 py-2">
           <div class="flex items-center justify-between mb-1.5">
             <p class="text-xs text-text-tertiary">猜你想问</p>
@@ -175,7 +185,7 @@
 
         <!-- 输入区 -->
         <div class="border-t border-border-light bg-white/70 p-3">
-          <!-- 卡片预览（可移除） -->
+          <!-- 卡片预览(可移除) -->
           <div v-if="pendingContext" class="flex items-center justify-between gap-2 mb-2 px-2.5 py-1.5 rounded-lg bg-amber-50 border border-amber-200">
             <span class="text-xs text-text-primary truncate">{{ pendingContext.label }}</span>
             <button @click="pendingContext = null" class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-text-tertiary hover:text-danger btn-transition">✕</button>
@@ -184,7 +194,7 @@
             <textarea
               v-model="inputText"
               rows="2"
-              placeholder="输入您的问题，Enter 发送，Shift+Enter 换行"
+              placeholder="输入您的问题, Enter 发送, Shift+Enter 换行"
               class="flex-1 px-3 py-2 rounded-xl border border-border-light text-sm bg-white input-focus resize-none"
               @keydown.enter.exact.prevent="handleSend"
             ></textarea>
@@ -200,6 +210,9 @@
       </template>
     </div>
   </transition>
+
+  <!-- 语音通话全屏遮罩 -->
+  <VoiceCall v-if="voiceCallOpen" :session-id="chatStore.currentSessionId" @close="voiceCallOpen = false" />
 </template>
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
@@ -207,8 +220,9 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { useChatStore } from '../stores/chat'
 import { useCartStore } from '../stores/cart'
+import VoiceCall from './VoiceCall.vue'
 
-// markdown 渲染配置：GFM 表格/列表 + 单换行转 <br>，输出经 DOMPurify 消毒防 XSS
+// markdown 渲染配置: GFM 表格/列表 + 单换行转 <br>, 输出经 DOMPurify 消毒防 XSS
 marked.setOptions({ gfm: true, breaks: true })
 
 function renderMarkdown(text) {
@@ -223,8 +237,17 @@ const view = ref('chat')           // chat=对话视图, sessions=会话列表
 const inputText = ref('')
 const pendingContext = ref(null)   // 待发送的卡片上下文 {type, id, label}
 const messagesRef = ref(null)
+const voiceCallOpen = ref(false)   // 语音通话遮罩
 
-const WELCOME_TEXT = '您好！我是 VESTA 智能客服，可以帮您查询订单状态、搜索商品与库存、查看或修改购物车，也能为您推荐商品。点击下方问题卡片或直接输入您的问题，我来为您服务。'
+function startVoiceCall() {
+  if (!chatStore.currentSessionId) {
+    window.$toast.error('会话尚未就绪, 请稍后再试')
+    return
+  }
+  voiceCallOpen.value = true
+}
+
+const WELCOME_TEXT = '您好！我是 VESTA 智能客服, 可以帮您查询订单状态、搜索商品与库存、查看或修改购物车, 也能为您推荐商品。点击下方问题卡片或直接输入您的问题, 我来为您服务。'
 const PRESET_QUESTIONS = [
   '帮我查一下我的订单状态',
   '购物车里的商品还有库存吗？',
@@ -233,7 +256,7 @@ const PRESET_QUESTIONS = [
 ]
 const ORDER_STATUS_TEXT = { 1: '待支付', 2: '已支付', 3: '已取消' }
 
-// 推荐卡片拍平：仅取 1 个最近订单 + 1 个在售商品（防御式取值，后端字段缺失时不至于渲染崩溃）
+// 推荐卡片拍平: 仅取 1 个最近订单 + 1 个在售商品(防御式取值, 后端字段缺失时不至于渲染崩溃)
 const allCards = computed(() => {
   const r = chatStore.recommendations || {}
   return [
@@ -249,13 +272,13 @@ const allCards = computed(() => {
   ]
 })
 
-// 推荐卡片关闭状态：单次对话只出现一次，新对话（会话变空）时重置
+// 推荐卡片关闭状态: 单次对话只出现一次, 新对话(会话变空)时重置
 const cardsDismissed = ref(false)
 watch(() => chatStore.isEmpty, empty => {
   if (empty) cardsDismissed.value = false
 })
 
-// 消息变化（含流式增量）时自动滚到底部
+// 消息变化(含流式增量)时自动滚到底部
 watch(
   () => chatStore.messages.map(m => m.content).join('').length + chatStore.messages.length,
   scrollBottom
@@ -278,9 +301,9 @@ async function openWidget() {
   try {
     await chatStore.ensureInit()
   } catch (e) {
-    window.$toast.error(e?.message || '客服初始化失败，请稍后再试')
+    window.$toast.error(e?.message || '客服初始化失败, 请稍后再试')
   }
-  // 每次展开都刷新推荐卡片（订单/购物车可能已变化），失败仅记录不阻断对话
+  // 每次展开都刷新推荐卡片(订单/购物车可能已变化), 失败仅记录不阻断对话
   chatStore.loadRecommendations().catch(e => {
     console.error('[客服] 推荐卡片加载失败:', e)
   })
@@ -288,15 +311,15 @@ async function openWidget() {
 }
 
 function addCard(card) {
-  // 购物车卡片：填充提问文本；订单/商品卡片：进入待发送上下文预览
+  // 购物车卡片: 填充提问文本; 订单/商品卡片: 进入待发送上下文预览
   if (card.type === 'cart') {
-    inputText.value = `我想咨询购物车里的「${card.title}」（数量 ${card.sub?.replace('×', '') || 1}）`
+    inputText.value = `我想咨询购物车里的「${card.title}」(数量 ${card.sub?.replace('×', '') || 1})`
     return
   }
   pendingContext.value = {
     type: card.type,
     id: card.id,
-    label: `${card.badge}：${card.title}`
+    label: `${card.badge}: ${card.title}`
   }
 }
 
@@ -311,7 +334,7 @@ async function handleSend() {
   try {
     await chatStore.send(content, context)
   } catch (e) {
-    window.$toast.error(e?.message || '发送失败，请稍后再试')
+    window.$toast.error(e?.message || '发送失败, 请稍后再试')
   } finally {
     scrollBottom()
   }
@@ -389,7 +412,7 @@ async function handleDeleteSession(session) {
   text-decoration: underline;
 }
 
-/* 等待回复：三个跳动圆点 */
+/* 等待回复: 三个跳动圆点 */
 .typing-dots {
   display: inline-flex;
   align-items: center;

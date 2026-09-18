@@ -19,7 +19,7 @@ request.interceptors.request.use(
 
 let refreshPromise = null
 
-// 使用原始 axios 刷新令牌，避免进入拦截器造成死循环
+// 使用原始 axios 刷新令牌, 避免进入拦截器造成死循环
 async function refreshAccessToken() {
   const refresh_token = localStorage.getItem('refresh_token')
   if (!refresh_token) {
@@ -38,7 +38,7 @@ async function refreshAccessToken() {
 }
 
 function redirectToLogin() {
-  // 清空本地令牌；跳转会触发整页刷新，Pinia 状态随之重置
+  // 清空本地令牌; 跳转会触发整页刷新, Pinia 状态随之重置
   localStorage.removeItem('token')
   localStorage.removeItem('refresh_token')
   if (window.location.pathname !== '/login') {
@@ -46,7 +46,7 @@ function redirectToLogin() {
   }
 }
 
-// 响应拦截器：统一解析 {code, message, data}，并处理 401 自动刷新
+// 响应拦截器：统一解析 {code, message, data}, 并处理 401 自动刷新
 request.interceptors.response.use(
   response => {
     const body = response.data
@@ -67,7 +67,7 @@ request.interceptors.response.use(
     const originalRequest = error.config
     const status = error.response?.status
 
-    // 401 且未重试过，则尝试刷新令牌后重放请求
+    // 401 且未重试过, 则尝试刷新令牌后重放请求
     if (status === 401 && originalRequest && !originalRequest._retry) {
       originalRequest._retry = true
       try {
@@ -83,7 +83,7 @@ request.interceptors.response.use(
         redirectToLogin()
         return Promise.reject({
           status,
-          message: '登录已过期，请重新登录',
+          message: '登录已过期, 请重新登录',
           raw: error
         })
       }
@@ -91,14 +91,14 @@ request.interceptors.response.use(
 
     // 统一错误消息
     const detail = error.response?.data?.message || error.response?.data?.detail || ''
-    let message = '网络异常，请稍后再试'
+    let message = '网络异常, 请稍后再试'
 
     switch (status) {
       case 400:
         message = detail || '请求参数有误'
         break
       case 401:
-        message = '登录已过期，请重新登录'
+        message = '登录已过期, 请重新登录'
         break
       case 403:
         message = detail || '您没有权限执行此操作'
@@ -107,12 +107,12 @@ request.interceptors.response.use(
         message = detail || '请求的资源不存在'
         break
       case 422:
-        message = detail || '输入信息格式不正确，请检查后重试'
+        message = detail || '输入信息格式不正确, 请检查后重试'
         break
       case 500:
       case 502:
       case 503:
-        message = '服务器繁忙，请稍后再试'
+        message = '服务器繁忙, 请稍后再试'
         break
     }
 

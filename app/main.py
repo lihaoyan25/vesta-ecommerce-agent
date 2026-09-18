@@ -17,7 +17,7 @@ from .models import user, product, cart, order, chat
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
     print(f"{settings.APP_NAME} 启动中...")
-    print(f"数据库：{settings.DATABASE_HOST}:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}")
+    print(f"数据库: {settings.DATABASE_HOST}:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}")
     # 启动时创建数据库表
     Base.metadata.create_all(bind=engine)
     print("数据库表初始化完成!")
@@ -35,7 +35,7 @@ app = FastAPI(
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 配置CORS（鉴权使用 Bearer Token，不依赖 Cookie，因此不开启 allow_credentials）
+# 配置CORS(鉴权使用 Bearer Token, 不依赖 Cookie, 因此不开启 allow_credentials)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.CORS_ALLOW_ORIGINS],
@@ -45,7 +45,7 @@ app.add_middleware(
 )
 
 
-# 统一异常处理：所有错误均返回 {code, message, data} 结构
+# 统一异常处理: 所有错误均返回 {code, message, data} 结构
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     message = exc.detail if isinstance(exc.detail, str) else "请求处理失败"
@@ -62,7 +62,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     message = "请求参数校验失败"
     for err in exc.errors():
         msg = err.get("msg", "")
-        # value_error 时，ctx.error 才是原始异常信息（如「手机号格式不正确」），且不含前缀
+        # value_error 时, ctx.error 才是原始异常信息(如「手机号格式不正确」), 且不含前缀
         if err.get("type") == "value_error" and err.get("ctx", {}).get("error"):
             msg = str(err["ctx"]["error"])
         errors.append({"loc": err.get("loc"), "msg": msg})

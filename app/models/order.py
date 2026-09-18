@@ -14,7 +14,7 @@ class Order(Base):
     # 主键
     order_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, comment="订单 ID")
 
-    # 订单号（对外展示的唯一编号）
+    # 订单号(对外展示的唯一编号)
     order_no: Mapped[str] = mapped_column(String(32), unique=True, nullable=False, index=True, comment="订单号")
 
     # 外键 - 关联用户
@@ -26,7 +26,7 @@ class Order(Base):
     # 状态: 1=待支付, 2=已支付, 3=已取消
     status: Mapped[int] = mapped_column(Integer, default=1, nullable=False, index=True, comment="订单状态: 1=待支付, 2=已支付, 3=已取消")
 
-    # 支付截止时间（超过则惰性取消）
+    # 支付截止时间(超过则惰性取消)
     expire_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, comment="支付截止时间")
 
     # 支付时间
@@ -44,7 +44,7 @@ class Order(Base):
 
 
 class OrderItem(Base):
-    """订单明细表（保存下单时的商品快照）"""
+    """订单明细表(保存下单时的商品快照)"""
     __tablename__ = "order_items"
 
     # 主键
@@ -53,10 +53,10 @@ class OrderItem(Base):
     # 外键 - 关联订单
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.order_id"), nullable=False, index=True, comment="订单 ID")
 
-    # 商品 ID（仅记录，不做外键约束，保证商品变更不影响历史订单）
+    # 商品 ID(仅记录, 不做外键约束, 保证商品变更不影响历史订单)
     product_id: Mapped[int] = mapped_column(Integer, nullable=False, index=True, comment="商品 ID")
 
-    # 商品快照（下单时刻的商品信息，不随商品表变化）
+    # 商品快照(下单时刻的商品信息, 不随商品表变化)
     product_name: Mapped[str] = mapped_column(String(100), nullable=False, comment="商品名称快照")
     product_price: Mapped[Decimal] = mapped_column(DECIMAL(14, 2), nullable=False, comment="商品单价快照")
     image_url: Mapped[str | None] = mapped_column(String(255), nullable=True, comment="商品图片快照")

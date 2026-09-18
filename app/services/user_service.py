@@ -47,7 +47,7 @@ class UserService:
         return user
 
     def login(self, account: str, password: str) -> Tuple[str, str]:
-        """用户登录，account 支持用户名/邮箱/手机号自动识别，返回(access_token, refresh_token)"""
+        """用户登录, account 支持用户名/邮箱/手机号自动识别, 返回(access_token, refresh_token)"""
         # 依次按 用户名 -> 邮箱 -> 手机号 查找
         user = self.user_dao.get_by_username(self.db, account)
         if not user:
@@ -100,10 +100,10 @@ class UserService:
         phone: str | None = None,
         current_password: str | None = None,
     ) -> User:
-        """更新当前用户信息；修改邮箱/手机号属于敏感操作，需验证当前密码"""
+        """更新当前用户信息; 修改邮箱/手机号属于敏感操作, 需验证当前密码"""
         user = self.get_user_by_id(user_id)
 
-        # 敏感操作校验：改邮箱/手机号需当前密码确认
+        # 敏感操作校验: 改邮箱/手机号需当前密码确认
         if (email is not None or phone is not None) and not current_password:
             raise HTTPException(status_code=400, detail="修改邮箱/手机号需要验证当前密码")
         if current_password is not None and not verify_password(current_password, user.hashed_password):
@@ -142,16 +142,16 @@ class UserService:
         return user
 
     def reset_password(self, account: str, phone: str, new_password: str) -> None:
-        """忘记密码：通过 账号(用户名或邮箱) + 手机号 验证身份后重置密码
+        """忘记密码: 通过 账号(用户名或邮箱) + 手机号 验证身份后重置密码
 
-        预留升级：接入邮件服务后可在此增加验证码校验
+        预留升级: 接入邮件服务后可在此增加验证码校验
         """
-        # 与登录一致：账号支持用户名或邮箱
+        # 与登录一致: 账号支持用户名或邮箱
         user = self.user_dao.get_by_username(self.db, account)
         if not user:
             user = self.user_dao.get_by_email(self.db, account)
 
-        # 统一模糊提示，避免暴露账号是否存在/是否绑定了手机号
+        # 统一模糊提示, 避免暴露账号是否存在/是否绑定了手机号
         if not user or user.phone != phone:
             raise HTTPException(status_code=400, detail="账号、手机号不匹配或未绑定手机号")
 

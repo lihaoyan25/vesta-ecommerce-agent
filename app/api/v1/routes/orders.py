@@ -72,7 +72,7 @@ async def pay_order(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """支付订单（余额扣款）"""
+    """支付订单(余额扣款)"""
     order_service = OrderService(db)
     data = await run_in_threadpool(
         order_service.pay_order,
@@ -88,7 +88,7 @@ async def cancel_order(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """取消待支付订单（回补库存）"""
+    """取消待支付订单(回补库存)"""
     order_service = OrderService(db)
     data = await run_in_threadpool(
         order_service.cancel_order,
@@ -104,7 +104,7 @@ async def delete_order(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """删除订单（仅已取消的订单）"""
+    """删除订单(仅已取消的订单)"""
     order_service = OrderService(db)
     await run_in_threadpool(
         order_service.delete_order,

@@ -1,6 +1,6 @@
 # 智能线上商城(VESTA.OnlineMall)
 
-一个前后端分离的**智能线上商城**, 实现智能客服AI Agent, 用户注册登录, 商品浏览/搜索/管理, 购物车, 余额充值, 下单结算等核心电商闭环能力
+一个前后端分离的**智能线上商城**, 实现智能客服AI Agent, 并支持AI语音通话, 用户注册登录, 商品浏览/搜索/管理, 购物车, 余额充值, 下单结算等功能
 
 > 📦 快速部署: **[部署文档 (Docker 一键上云)](docs/DEPLOYMENT.md)** ｜ 🛠 开发文档: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) ｜ 🔌 接口文档: [docs/API.md](docs/API.md)
 
@@ -16,6 +16,8 @@
 ![智能客服悬浮窗-推荐卡片](./docs/screenshots/chat_recommend.png)
 
 ![智能客服悬浮窗-代劳服务](./docs/screenshots/chat_services.png)
+
+![语音通话页面](./docs/screenshots/voice.png)
 
 ![商品详情页](./docs/screenshots/detail.png)
 
@@ -40,7 +42,8 @@
 - 购物车: 增删改查, 勾选/全选结算
 - 订单: 下单生成待支付订单(20 分钟未支付自动取消), 余额支付, 手动取消, 删除已取消订单
 - 账户: 余额查询, 充值, 修改密码, 修改用户名/邮箱/手机号
-- 智能客服: 在本项目中由 DeepSeek 驱动, SSE 流式回复, 多轮记忆, 可查询订单/商品/购物车并代改购物车, 支持商品/订单卡片对话
+- 智能客服: DeepSeek 驱动, SSE 流式回复, 多轮记忆, 可查询订单/商品/购物车并代改购物车, 支持商品/订单卡片对话
+- 语音通话: AI 客服实时语音对话(火山引擎流式 ASR/TTS)
 - 角色权限: 普通用户 / 管理员
 
 ## 技术栈

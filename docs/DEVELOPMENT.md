@@ -132,6 +132,7 @@ data = await run_in_threadpoo(cart_service.get_cart, current_user.user_id)
 - 商品/订单卡片随消息发送时, 后端生成快照文本注入上下文并随消息存库, 历史重建零额外查询
 - 思考模式由 `.env` 的 `DEEPSEEK_THINKING` 开关控制, 请求体显式写入 `thinking.type`(V4 系列服务端默认 `enabled`, 必须显式覆盖), 不向前端暴露开关
 - `DEEPSEEK_API_KEY` 未配置时客服接口统一返回 503, 不影响主站功能
+- **语音通话**: `routes/voice.py` WebSocket 网关编排 火山流式 ASR(`volcano_asr.py`) → **复用 chat_stream** → 火山双向流式 TTS(`volcano_tts.py`); 二进制协议编解码在 `volcano_protocol.py`(事件号对照官方 demo); 并发模型三协程——主循环(音频透传) + asr_reader(definite 增量分句入队, 按「已消费分句数」去重防重复触发) + round_runner(顺序执行轮次, **每轮独立 TTS 会话**, FinishSession 后须重新 StartSession); 打断=静音不取消: 前端本地能量检测(依赖 AEC)发 `barge_in`, 网关停发音频但轮次后台跑完(工具调用/落库不丢), 新话语排队顺延; 语速由 `VOLCANO_TTS_SPEECH_RATE` 控制; 由 `VOLCANO_API_KEY` 启停, 麦克风需 HTTPS 环境
 - SSE 流式接口需注意 Nginx 反代时关闭缓冲(`X-Accel-Buffering: no` 响应头已内置)
 
 ## 6. 本地开发环境搭建
