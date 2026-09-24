@@ -205,7 +205,7 @@ docker compose version
 ```bash
 # 方式一: git clone(推荐)
 cd /opt
-git clone https://github.com/<你的用户名>/<仓库名>.git vesta-ecommerce
+git clone https://github.com/lihaoyan25/vesta-ecommerce-agent.git vesta-ecommerce
 cd vesta-ecommerce
 
 # 方式二: 本地打包上传(在本地执行后传到服务器同目录)
